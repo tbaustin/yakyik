@@ -1,0 +1,24 @@
+.comment-container {
+  padding: 12px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+.comment-container ul {
+  list-style: none;
+}
+.single-comment {
+  margin-bottom: 16px;
+}
+.comment-body {
+  font-size: 20px;
+  font-weight: 400;
+}
+.comment-username {
+  font-weight: 200;
+}
+.comment-timestamp {
+  font-weight: 200;
+}
+.comment-hr {
+  margin: 0px 12px;
+}

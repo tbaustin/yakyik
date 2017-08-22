@@ -1,0 +1,16 @@
+.zone-div {
+  padding: 16px;
+  background: #f9f9f9;
+  margin-top: 12px;
+  border: 1px solid #ddd;
+}
+.zone-header {
+  margin-bottom: 0px;
+}
+.zone-title {
+  text-decoration: none;
+  color: red;
+}
+.zone-container ul {
+  list-style: none;
+}
