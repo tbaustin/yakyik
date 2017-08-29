@@ -5,7 +5,6 @@ var controllers = require('../controllers');
 router.get('/:resource', function(req, res, next) {
   var resource = req.params.resource;
   var controller = controllers[resource];
-
   if (controller == null) {
     res.json({
       confirmation: 'fail',

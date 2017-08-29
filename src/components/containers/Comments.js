@@ -1,102 +1,105 @@
 import React, { Component } from 'react';
-import Comment from '../presentation/Comment';
-import axios from 'axios';
+import { Comment, CreateComment } from '../presentation';
+import { APIManager } from '../../utils';
+import { connect } from 'react-redux';
+import actions from '../../actions/actions';
 
 class Comments extends Component {
   constructor() {
     super();
-
-    this.state = {
-      comment: {
-        username: '',
-        body: '',
-        timestamp: ''
-      },
-      list: []
-    };
   }
 
-  componentDidMount() {
-    axios
-      .get('/api/comment')
-      .then(response => {
-        const { confirmation, results } = response.data;
-        if (confirmation == 'success') {
-          this.setState({
-            list: results
-          });
-        }
-      })
-      .catch(err => {
-        alert(`Error: ${err}`);
-      });
-  }
+  componentDidUpdate() {
+    let zone = this.props.zones[this.props.zoneIndex];
+    if (zone == null) {
+      console.log('No Selected Zone');
+      return;
+    }
 
-  submitComment() {
-    let updatedList = Object.assign([], this.state.list);
-    updatedList.push(this.state.comment);
-    this.setState({
-      list: updatedList
+    let commentsArray = this.props.commentsMap[zone._id];
+    if (commentsArray != null) {
+      return;
+    }
+
+    APIManager.get('/api/comment', { zone: zone._id }, (err, response) => {
+      if (err) {
+        alert(`ERROR from apigetcomments: ${err.message}`);
+        return;
+      }
+
+      this.props.commentsReceived(response.results, zone);
     });
   }
 
-  updateComment(event) {
-    let updatedComment = Object.assign({}, this.state.comment);
-    updatedComment[event.target.id] = event.target.value;
-    this.setState({
-      comment: updatedComment
+  submitComment(comment) {
+    let updatedComment = Object.assign({}, comment);
+
+    let zone = this.props.zones[this.props.zoneIndex];
+    updatedComment['zone'] = zone._id;
+
+    APIManager.post('/api/comment', updatedComment, (err, response) => {
+      if (err) {
+        alert(`ERROR: ${err.message}`);
+        return;
+      }
+
+      // this.props.commentsReceived([comments], zone);
+      this.props.commentCreated(response.result);
     });
   }
 
   render() {
-    const commentList = this.state.list.map((comment, i) => {
-      return (
-        <li key={i}>
-          <Comment comment={comment} />
-        </li>
-      );
-    });
+    const selectedZone = this.props.zones[this.props.zoneIndex];
+    let zoneName = null;
+    let commentList = null;
+
+    if (selectedZone != null) {
+      zoneName = selectedZone.name;
+
+      let zoneComments = this.props.commentsMap[selectedZone._id];
+      if (zoneComments != null) {
+        commentList = zoneComments.map((comment, i) => {
+          return (
+            <li key={i}>
+              <Comment comment={comment} />
+            </li>
+          );
+        });
+      }
+    }
 
     return (
-      <div className="comment-container">
-        <h2>Comments: Zone 1</h2>
-        <ul>
-          {commentList}
-        </ul>
+      <div>
+        <h2>
+          {zoneName} : Comments
+        </h2>
+        <div className="comment-container">
+          <ul>
+            {commentList}
+          </ul>
 
-        <input
-          id="username"
-          onChange={this.updateComment.bind(this)}
-          className="form-control"
-          type="text"
-          placeholder="Username"
-        />
-        <br />
-        <input
-          id="body"
-          onChange={this.updateComment.bind(this)}
-          className="form-control"
-          type="text"
-          placeholder="Comment"
-        />
-        <br />
-        <input
-          id="timestamp"
-          onChange={this.updateComment.bind(this)}
-          className="form-control"
-          type="text"
-          placeholder="Timestamp"
-        />
-        <br />
-        <button
-          onClick={this.submitComment.bind(this)}
-          className="btn btn-info"
-        >
-          Submit Comment
-        </button>
+          <CreateComment onCreate={this.submitComment.bind(this)} />
+        </div>
       </div>
     );
   }
 }
 
-export default Comments;
+const stateToProps = state => {
+  return {
+    commentsMap: state.comment.map,
+    zoneIndex: state.zone.selectedZone,
+    zones: state.zone.list,
+    commentsLoaded: state.comment.commentsLoaded
+  };
+};
+
+const dispatchToProps = dispatch => {
+  return {
+    commentsReceived: (comments, zone) =>
+      dispatch(actions.commentsReceived(comments, zone)),
+    commentCreated: comment => dispatch(actions.commentCreated(comment))
+  };
+};
+
+export default connect(stateToProps, dispatchToProps)(Comments);

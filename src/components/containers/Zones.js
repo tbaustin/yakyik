@@ -1,57 +1,53 @@
 import React, { Component } from 'react';
-import Zone from '../presentation/Zone';
-import axios from 'axios';
+import { Zone, CreateZone } from '../presentation';
+import { APIManager } from '../../utils';
+import actions from '../../actions/actions';
+import { connect } from 'react-redux';
 
 class Zones extends Component {
   constructor() {
     super();
-
-    this.state = {
-      Zone: {
-        name: '',
-        zipCodes: ''
-      },
-      list: []
-    };
   }
 
   componentDidMount() {
-    axios
-      .get('/api/zone')
-      .then(response => {
-        const { confirmation, results } = response.data;
-        if (confirmation == 'success') {
-          this.setState({
-            list: results
-          });
-        }
-      })
-      .catch(err => {
-        alert(`ERROR: ${err}`);
-      });
-  }
+    APIManager.get('/api/zone', null, (err, response) => {
+      if (err) {
+        alert(`ERROR apiget: ${err.message}`);
+        return;
+      }
 
-  updateZone(event) {
-    let updatedZone = Object.assign({}, this.state.zone);
-    updatedZone[event.target.id] = event.target.value;
-    this.setState({
-      zone: updatedZone
+      this.props.zonesReceived(response.results);
     });
   }
 
-  submitZone() {
-    let updatedList = Object.assign([], this.state.list);
-    updatedList.push(this.state.zone);
-    this.setState({
-      list: updatedList
+  submitZone(zone) {
+    let updatedZone = Object.assign({}, zone);
+
+    APIManager.post('/api/zone', updatedZone, (err, response) => {
+      if (err) {
+        alert(`ERROR: ${err.message}`);
+        return;
+      }
+
+      this.props.zoneCreated(response.result);
     });
+  }
+
+  selectZone(zoneIndex) {
+    this.props.selectZone(zoneIndex);
   }
 
   render() {
-    const listItems = this.state.list.map((item, i) => {
+    const listItems = this.props.zones.map((item, i) => {
+      let selected = i == this.props.selected;
       return (
         <li key={i}>
-          <Zone zone={item} />
+          <Zone
+            zoneIndex={i}
+            select={this.selectZone.bind(this)}
+            isSelected={selected}
+            zone={item}
+          />
         </li>
       );
     });
@@ -63,28 +59,25 @@ class Zones extends Component {
           {listItems}
         </ul>
 
-        <input
-          id="name"
-          onChange={this.updateZone.bind(this)}
-          className="form-control"
-          type="text"
-          placeholder="Zone"
-        />
-        <br />
-        <input
-          id="zipCodes"
-          onChange={this.updateZone.bind(this)}
-          className="form-control"
-          type="text"
-          placeholder="Zip Codes"
-        />
-        <br />
-        <button onClick={this.submitZone.bind(this)} className="btn btn-danger">
-          Add Zone
-        </button>
+        <CreateZone onCreate={this.submitZone.bind(this)} />
       </div>
     );
   }
 }
 
-export default Zones;
+const mapStateToProps = state => {
+  return {
+    zones: state.zone.list,
+    selected: state.zone.selectedZone
+  };
+};
+
+const dispatchToProps = dispatch => {
+  return {
+    zonesReceived: zones => dispatch(actions.zonesReceived(zones)),
+    zoneCreated: zone => dispatch(actions.zoneCreated(zone)),
+    selectZone: zoneIndex => dispatch(actions.selectZone(zoneIndex))
+  };
+};
+
+export default connect(mapStateToProps, dispatchToProps)(Zones);

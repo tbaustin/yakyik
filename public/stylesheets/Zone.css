@@ -4,12 +4,24 @@
   margin-top: 12px;
   border: 1px solid #ddd;
 }
+.zone-div h2 a:hover {
+  text-decoration: none;
+  color: green;
+}
 .zone-header {
   margin-bottom: 0px;
 }
-.zone-title {
+.zone-selected {
   text-decoration: none;
   color: red;
+}
+
+.zone-selected:focus {
+  text-decoration: none;
+  color: red;
+}
+
+.zone-selected:visited {
 }
 .zone-container ul {
   list-style: none;

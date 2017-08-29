@@ -1,48 +1,50 @@
-var Zone = require('../models/Zone');
+var Profile = require('../models/Profile');
+var bcrypt = require('bcryptjs');
 
 module.exports = {
   find: (params, callback) => {
-    Zone.find(params, (err, zones) => {
+    Profile.find(params, (err, profiles) => {
       if (err) {
         callback(err, null);
         return;
       }
 
-      callback(null, zones);
+      callback(null, profiles);
     });
   },
   findById: (id, callback) => {
-    Zone.findById(id, (err, zone) => {
+    Profile.findById(id, (err, profile) => {
       if (err) {
         callback(err, null);
         return;
       }
 
-      callback(null, zone);
+      callback(null, profile);
     });
   },
   create: (params, callback) => {
-    Zone.create(params, (err, zone) => {
+    params['password'] = bcrypt.hashSync(params.password, 10);
+    Profile.create(params, (err, profile) => {
       if (err) {
         callback(err, null);
         return;
       }
 
-      callback(null, zone);
+      callback(null, profile);
     });
   },
   update: (id, params, callback) => {
-    Zone.findByIdAndUpdate(id, params, { new: true }, (err, zone) => {
+    Profile.findByIdAndUpdate(id, params, { new: true }, (err, profile) => {
       if (err) {
         callback(err, null);
         return;
       }
 
-      callback(null, zone);
+      callback(null, profile);
     });
   },
   delete: (id, callback) => {
-    Zone.findByIdAndRemove(id, err => {
+    Profile.findByIdAndRemove(id, err => {
       if (err) {
         callback(err, null);
         return;
