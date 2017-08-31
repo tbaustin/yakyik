@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Zones, Comments, Accounts } from '../containers';
+import { connect } from 'react-redux';
 
 class Home extends Component {
   render() {

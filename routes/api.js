@@ -68,4 +68,32 @@ router.post('/:resource', (req, res, next) => {
   });
 });
 
+router.put('/:resource/:id', (req, res, next) => {
+  var resource = req.params.resource;
+  var controller = controllers[resource];
+
+  if (controller == null) {
+    res.json({
+      confirmation: 'fail',
+      message: 'Invalid resource request ' + resource
+    });
+
+    return;
+  }
+
+  controller.update(req.params.id, req.body, (err, result) => {
+    if (err) {
+      res.json({
+        confirmation: 'fail',
+        message: err
+      });
+    }
+
+    res.json({
+      confirmation: 'success',
+      result
+    });
+  });
+});
+
 module.exports = router;

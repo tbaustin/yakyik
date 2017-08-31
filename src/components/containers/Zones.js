@@ -10,14 +10,10 @@ class Zones extends Component {
   }
 
   componentDidMount() {
-    APIManager.get('/api/zone', null, (err, response) => {
-      if (err) {
-        alert(`ERROR apiget: ${err.message}`);
-        return;
-      }
-
-      this.props.zonesReceived(response.results);
-    });
+    if (this.props.zones.length > 0) {
+      return;
+    }
+    this.props.fetchZones(null);
   }
 
   submitZone(zone) {
@@ -38,7 +34,7 @@ class Zones extends Component {
   }
 
   render() {
-    const listItems = this.props.zones.map((item, i) => {
+    const zoneList = this.props.zones.map((item, i) => {
       let selected = i == this.props.selected;
       return (
         <li key={i}>
@@ -52,14 +48,22 @@ class Zones extends Component {
       );
     });
 
-    return (
-      <div className="zone-container">
+    let header = (
+      <div>
         <h2>Zones</h2>
         <ul>
-          {listItems}
+          {zoneList}
         </ul>
 
         <CreateZone onCreate={this.submitZone.bind(this)} />
+      </div>
+    );
+
+    let content = this.props.appStatus == 'loading' ? 'LOADING...' : header;
+
+    return (
+      <div className="zone-container">
+        {content}
       </div>
     );
   }
@@ -68,13 +72,14 @@ class Zones extends Component {
 const mapStateToProps = state => {
   return {
     zones: state.zone.list,
-    selected: state.zone.selectedZone
+    selected: state.zone.selectedZone,
+    appStatus: state.zone.appStatus
   };
 };
 
 const dispatchToProps = dispatch => {
   return {
-    zonesReceived: zones => dispatch(actions.zonesReceived(zones)),
+    fetchZones: params => dispatch(actions.fetchZones(params)),
     zoneCreated: zone => dispatch(actions.zoneCreated(zone)),
     selectZone: zoneIndex => dispatch(actions.selectZone(zoneIndex))
   };

@@ -10,7 +10,7 @@ router.get('/:action', function(req, res, next) {
 
     res.json({
       confirmation: 'success',
-      message: 'Logged Out'
+      message: 'Sorry to see you go =('
     });
   }
 

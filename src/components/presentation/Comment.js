@@ -1,19 +1,23 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class Comment extends Component {
   render() {
+    const { comment } = this.props;
     return (
       <div className="single-comment">
         <p className="comment-body">
-          {this.props.comment.body}
+          {comment.body}
         </p>
         <span className="comment-username">
-          {this.props.comment.username}
+          <Link to={`/profile/${comment.username}`}>
+            {comment.username}
+          </Link>
         </span>
 
         <span className="comment-hr">|</span>
         <span className="comment-timestamp">
-          {this.props.comment.timestamp}
+          {comment.timestamp}
         </span>
         <hr />
       </div>
