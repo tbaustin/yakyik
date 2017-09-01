@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import actions from '../../actions/actions';
+import DropZone from 'react-dropzone';
+import { APIManager } from '../../utils';
+import sha1 from 'sha1';
 
 class CurrentUser extends Component {
   constructor() {
@@ -47,8 +50,50 @@ class CurrentUser extends Component {
     this.props.updateProfile(this.props.user, this.state.updated);
   }
 
+  uploadImage(files) {
+    const image = files[0];
+
+    const cloudName = 'hyszj0vmt';
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+    const apiSecret = '_lruNZ8yrruUqb9RDGYeVE23YcI';
+    const uploadPreset = 'rhmvjoqw';
+    const timestamp = Date.now() / 1000;
+    const paramStr = `timestamp=${timestamp}&upload_preset=${uploadPreset}${apiSecret}`;
+    const signature = sha1(paramStr);
+    const params = {
+      api_key: '427924639774458',
+      timestamp: timestamp,
+      upload_preset: uploadPreset,
+      signature: signature
+    };
+
+    APIManager.upload(url, image, params, (err, response) => {
+      if (err) {
+        alert(`UPLOAD ERROR: ${err}`);
+        return;
+      }
+
+      const imageUrl = response['secure_url'];
+      let updatedProfile = Object.assign({}, this.state.updated);
+      updatedProfile['image'] = imageUrl;
+
+      this.setState({
+        updated: updatedProfile
+      });
+    });
+  }
+
   render() {
     const currentUser = this.props.user;
+    const image =
+      this.state.updated.image == null
+        ? ''
+        : this.state.updated.image.replace(
+            'upload',
+            'upload/c_thumb,h_150,w_150,x_0,y_0'
+          ); // render thumbnail, not entire image
+
     return (
       <div className="container">
         <h2>
@@ -92,6 +137,10 @@ class CurrentUser extends Component {
               rows="4"
               cols="50"
             />
+            <img src={image} />
+            <br />
+            <DropZone onDrop={this.uploadImage.bind(this)} />
+            <br />
             <button
               onClick={this.submitProfile.bind(this)}
               className="btn btn-success"

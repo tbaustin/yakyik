@@ -49,5 +49,35 @@ export default {
         callback(err, null);
       });
   },
-  delete: (url, id, callback) => {}
+  delete: (url, id, callback) => {},
+
+  upload: (endpoint, file, params, callback) => {
+    let fd = new FormData();
+
+    fd.append('file', file);
+    Object.keys(params).forEach(key => {
+      fd.append(key, params[key]);
+    });
+
+    const config = {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      onUploadProgress: progressEvent => {
+        const progress = Math.round(
+          progressEvent.loaded * 100.0 / progressEvent.total
+        );
+
+        console.log(progress + '%');
+      }
+    };
+
+    axios
+      .post(endpoint, fd, config)
+      .then(response => {
+        const { data } = response;
+        callback(null, data);
+      })
+      .catch(err => {
+        callback(err, null);
+      });
+  }
 };
