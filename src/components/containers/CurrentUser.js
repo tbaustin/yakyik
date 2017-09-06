@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import actions from '../../actions/actions';
 import DropZone from 'react-dropzone';
-import { APIManager } from '../../utils';
+import { APIManager, ImageHelper } from '../../utils';
 import sha1 from 'sha1';
 
 class CurrentUser extends Component {
@@ -68,20 +68,28 @@ class CurrentUser extends Component {
       signature: signature
     };
 
-    APIManager.upload(url, image, params, (err, response) => {
-      if (err) {
-        alert(`UPLOAD ERROR: ${err}`);
-        return;
+    APIManager.upload(
+      url,
+      image,
+      params,
+      (err, response) => {
+        if (err) {
+          alert(`UPLOAD ERROR: ${err}`);
+          return;
+        }
+
+        const imageUrl = response['secure_url'];
+        let updatedProfile = Object.assign({}, this.state.updated);
+        updatedProfile['image'] = imageUrl;
+
+        this.setState({
+          updated: updatedProfile
+        });
+      },
+      progress => {
+        console.log(progress); // image upload callback progress
       }
-
-      const imageUrl = response['secure_url'];
-      let updatedProfile = Object.assign({}, this.state.updated);
-      updatedProfile['image'] = imageUrl;
-
-      this.setState({
-        updated: updatedProfile
-      });
-    });
+    );
   }
 
   render() {
@@ -89,10 +97,7 @@ class CurrentUser extends Component {
     const image =
       this.state.updated.image == null
         ? ''
-        : this.state.updated.image.replace(
-            'upload',
-            'upload/c_thumb,h_150,w_150,x_0,y_0'
-          ); // render thumbnail, not entire image
+        : ImageHelper.thumbnail(this.state.updated.image, 150);
 
     return (
       <div className="container">

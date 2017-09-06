@@ -51,7 +51,7 @@ export default {
   },
   delete: (url, id, callback) => {},
 
-  upload: (endpoint, file, params, callback) => {
+  upload: (endpoint, file, params, callback, callbackProgress) => {
     let fd = new FormData();
 
     fd.append('file', file);
@@ -66,7 +66,7 @@ export default {
           progressEvent.loaded * 100.0 / progressEvent.total
         );
 
-        console.log(progress + '%');
+        callbackProgress(progress);
       }
     };
 

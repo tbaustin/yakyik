@@ -69,6 +69,7 @@ router.post('/:resource', (req, res, next) => {
 });
 
 router.put('/:resource/:id', (req, res, next) => {
+  var id = req.params.id;
   var resource = req.params.resource;
   var controller = controllers[resource];
 
@@ -81,7 +82,7 @@ router.put('/:resource/:id', (req, res, next) => {
     return;
   }
 
-  controller.update(req.params.id, req.body, (err, result) => {
+  controller.update(id, req.body, (err, result) => {
     if (err) {
       res.json({
         confirmation: 'fail',

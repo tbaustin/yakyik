@@ -10,7 +10,7 @@ import {
 let store;
 
 export default {
-  configureStore: () => {
+  configureStore: initial => {
     const reducers = combineReducers({
       zone: zoneReducer,
       comment: commentReducer,
@@ -18,7 +18,7 @@ export default {
       profile: profileReducer
     });
 
-    store = createStore(reducers, applyMiddleware(thunk));
+    store = createStore(reducers, initial, applyMiddleware(thunk));
 
     return store;
   },

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { APIManager } from '../../utils';
+import { ImageHelper } from '../../utils';
 import { connect } from 'react-redux';
 import actions from '../../actions/actions';
 
@@ -27,6 +27,9 @@ class Profile extends Component {
           <h3>
             {profile.username}
           </h3>
+          <div>
+            <img src={ImageHelper.thumbnail(profile.image, 150)} />
+          </div>
           <p>
             city: {profile.city}
           </p>

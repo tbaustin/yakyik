@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Home, ProfileInfo } from './components/layout';
-import { CurrentUser } from './components/containers';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+
 import store from './stores/store';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import routes from './routes';
+
+const initialState = window.__PRELOAD_STATE__;
 
 class App extends Component {
   render() {
     return (
-      <Provider store={store.configureStore()}>
+      <Provider store={store.configureStore(initialState)}>
         <div>
           <BrowserRouter>
-            <Switch>
-              <Route path="/currentuser" component={CurrentUser} />
-              <Route path="/profile/:username" component={ProfileInfo} />
-              <Route path="/" component={Home} />
-            </Switch>
+            {routes}
           </BrowserRouter>
         </div>
       </Provider>

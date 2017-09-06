@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { APIManager } from '../../utils';
+import { APIManager, ImageHelper } from '../../utils';
 import { connect } from 'react-redux';
 import actions from '../../actions/actions';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 class Accounts extends Component {
   constructor() {
@@ -18,17 +19,7 @@ class Accounts extends Component {
     };
   }
 
-  componentDidMount() {
-    APIManager.get('/account/currentuser', null, (err, response) => {
-      if (err) {
-        // not logged in, ingore error
-        // alert(`ERROR: ${err.message}`);
-        return;
-      }
-
-      this.props.currentUserReceived(response.user);
-    });
-  }
+  componentDidMount() {}
 
   updateProfile(event) {
     event.preventDefault();
@@ -103,6 +94,7 @@ class Accounts extends Component {
 
   render() {
     let content = null;
+    // console.log(this.props.user);
     if (this.props.user == null) {
       content = (
         <div>
@@ -154,7 +146,7 @@ class Accounts extends Component {
             id="biography"
             className="form-control"
             onChange={this.updateProfile.bind(this)}
-            value="Write your biography here!!"
+            defaultValue="Write your biography here!!"
             rows="4"
             cols="50"
           />
@@ -165,6 +157,12 @@ class Accounts extends Component {
     } else {
       content = (
         <div>
+          <Link to="/currentuser">
+            <img
+              className="account__thumbnail-image"
+              src={ImageHelper.thumbnail(this.props.user.image, 72)}
+            />
+          </Link>
           <h2>
             Welcome {this.props.user.username}
           </h2>
@@ -191,6 +189,7 @@ const stateToProps = state => {
 
 const dispatchToProps = dispatch => {
   return {
+    fetchCurrentUser: () => dispatch(actions.fetchCurrentUser()),
     currentUserReceived: user => dispatch(actions.currentUserReceived(user))
   };
 };

@@ -1,17 +1,20 @@
 var express = require('express');
 var router = express.Router();
+var requestHandler = require('../requestHandler');
+var controllers = require('../controllers');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  requestHandler(req, res);
 });
 
-router.get('/createzone', (req, res, next) => {
-  res.render('createzone');
-});
+router.get('/:page/:slug', function(req, res, next) {
+  const { page, slug } = req.params;
 
-router.get('/createcomment', (req, res, next) => {
-  res.render('createcomment');
+  if (page == 'api') {
+    next();
+    return;
+  }
+  requestHandler(req, res);
 });
 
 module.exports = router;

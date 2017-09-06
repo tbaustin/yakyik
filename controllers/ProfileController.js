@@ -1,7 +1,21 @@
 var Profile = require('../models/Profile');
 var bcrypt = require('bcryptjs');
+var Promise = require('bluebird');
 
 module.exports = {
+  get: params => {
+    return new Promise((resolve, reject) => {
+      Profile.find(params, (err, profiles) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(profiles);
+      });
+    });
+  },
+
   find: (params, callback) => {
     Profile.find(params, (err, profiles) => {
       if (err) {
@@ -18,7 +32,6 @@ module.exports = {
         callback(err, null);
         return;
       }
-
       callback(null, profile);
     });
   },
@@ -39,7 +52,7 @@ module.exports = {
         callback(err, null);
         return;
       }
-
+      console.log(profile);
       callback(null, profile);
     });
   },

@@ -40,6 +40,24 @@ export default {
     };
   },
 
+  updateComment: (comment, params) => {
+    return dispatch => {
+      const endpoint = `/api/comment/${comment._id}`;
+      APIManager.put(endpoint, params, (err, response) => {
+        if (err) {
+          alert('updatedComment', err);
+          return;
+        }
+
+        const updatedComment = response.result;
+        dispatch({
+          type: constants.COMMENT_UPDATED,
+          comment: updatedComment
+        });
+      });
+    };
+  },
+
   commentCreated: comment => {
     return {
       type: constants.COMMENT_CREATED,
@@ -57,7 +75,7 @@ export default {
 
       APIManager.get('/api/zone', params, (err, response) => {
         if (err) {
-          alert(`ERROR: ${err.message}`);
+          alert(`ERROR apimanagergetzone: ${err.message}`);
           return;
         }
 
@@ -91,6 +109,22 @@ export default {
     };
   },
 
+  fetchCurrentUser: () => {
+    return dispatch => {
+      APIManager.get('/account/currentuser', null, (err, response) => {
+        if (err) {
+          // not logged in, ingore error
+          // alert(`ERROR: ${err.message}`);
+          return;
+        }
+        dispatch({
+          type: constants.CURRENT_USER_RECEIVED,
+          user: response.user
+        });
+      });
+    };
+  },
+
   updateProfile: (profile, updated) => {
     return dispatch => {
       APIManager.put(
@@ -98,7 +132,7 @@ export default {
         updated,
         (err, response) => {
           if (err) {
-            alert(`ERROR: ${err.message}`);
+            alert(`ERROR updateprofileput: ${err.message}`);
             return;
           }
 

@@ -7,9 +7,11 @@ import actions from '../../actions/actions';
 class Comments extends Component {
   constructor() {
     super();
+
+    this.checkForComments = this.checkForComments.bind(this);
   }
 
-  componentDidUpdate() {
+  checkForComments() {
     let zone = this.props.zones[this.props.zoneIndex];
     if (zone == null) {
       console.log('No Selected Zone');
@@ -31,6 +33,14 @@ class Comments extends Component {
     });
   }
 
+  componentDidMount() {
+    this.checkForComments();
+  }
+
+  componentDidUpdate() {
+    this.checkForComments();
+  }
+
   submitComment(comment) {
     if (this.props.user == null) {
       alert('Please Sign Up or Log In to comment!');
@@ -41,6 +51,7 @@ class Comments extends Component {
     let zone = this.props.zones[this.props.zoneIndex];
     updatedComment['zone'] = zone._id;
     updatedComment['username'] = this.props.user.username;
+    updatedComment['author'] = this.props.user;
 
     APIManager.post('/api/comment', updatedComment, (err, response) => {
       if (err) {
@@ -53,8 +64,14 @@ class Comments extends Component {
     });
   }
 
+  updateComment(comment, updatedBody) {
+    this.props.updateComment(comment, { body: updatedBody });
+  }
+
   render() {
     const selectedZone = this.props.zones[this.props.zoneIndex];
+    const currentUser = this.props.user; // null if not logged in
+
     let zoneName = null;
     let commentList = null;
 
@@ -64,9 +81,20 @@ class Comments extends Component {
       let zoneComments = this.props.commentsMap[selectedZone._id];
       if (zoneComments != null) {
         commentList = zoneComments.map((comment, i) => {
+          let editable = false;
+          if (currentUser != null) {
+            if (currentUser._id == comment.author._id) {
+              editable = true;
+            }
+          }
+
           return (
             <li key={i}>
-              <Comment comment={comment} />
+              <Comment
+                onUpdate={this.updateComment.bind(this)}
+                isEditable={editable}
+                comment={comment}
+              />
             </li>
           );
         });
@@ -104,7 +132,9 @@ const dispatchToProps = dispatch => {
   return {
     commentsReceived: (comments, zone) =>
       dispatch(actions.commentsReceived(comments, zone)),
-    commentCreated: comment => dispatch(actions.commentCreated(comment))
+    commentCreated: comment => dispatch(actions.commentCreated(comment)),
+    updateComment: (comment, params) =>
+      dispatch(actions.updateComment(comment, params))
   };
 };
 

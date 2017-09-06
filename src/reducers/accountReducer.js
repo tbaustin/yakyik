@@ -16,7 +16,6 @@ export default (state = initialState, action) => {
       if (action.profile._id != updatedState.user._id) return updatedState;
 
       updatedState['user'] = action.profile;
-      console.log(updatedState);
       return updatedState;
 
     default:
